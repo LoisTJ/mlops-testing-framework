@@ -103,38 +103,38 @@ Some examples of data quality checks include:
 	On data imputation techniques, it deserves a separate discussion on its own, but here are a list of techniques to consider. Let's assume you have already split the data set into the train, test, validation sets, we are interested in imputing the training data now.
 
      - Impute using Mean / Median values
-     ```python
-     from sklearn.impute import SimpleImputer
+		```python
+		from sklearn.impute import SimpleImputer
 
-     impute_mean = SimpleImputer(strategy='mean') # or you can use 'median'
-     impute_mean.fit(train)
-     imputed_train_df = impute_mean.transform(train)
-     ```
+		impute_mean = SimpleImputer(strategy='mean') # or you can use 'median'
+		impute_mean.fit(train)
+		imputed_train_df = impute_mean.transform(train)
+		```
 
      - Impute using Mode (most common) or constant values
-     ```python
-     from sklearn.impute import SimpleImputer
+		```python
+		from sklearn.impute import SimpleImputer
 
-     impute_mode = SimpleImputer(strategy='most_frequent)
-     impute_mode.fit(train)
-     imputed_train_df = imputed_mode.transform(train)
-     ```
+		impute_mode = SimpleImputer(strategy='most_frequent)
+		impute_mode.fit(train)
+		imputed_train_df = imputed_mode.transform(train)
+		```
 
      - Impute using k-NN
-     ```python
-     import sys
-     from impyute.imputation.cs import fast_knn
-     sys.setrecursionlimit(10000)
+		```python
+		import sys
+		from impyute.imputation.cs import fast_knn
+		sys.setrecursionlimit(10000)
 
-     imputed_training = fast_knn(train.values, k=30)
-     ```
+		imputed_training = fast_knn(train.values, k=30)
+		```
 
      - Impute using multivariate imputation by chained equation (MICE) 
-     ```python
-     from impyute.imputation.cs import mice
+		```python
+		from impyute.imputation.cs import mice
 
-     imputed_training = mice(train.values)
-     ```
+		imputed_training = mice(train.values)
+		```
 
      - Impute using interpolation and extrapolation
 
