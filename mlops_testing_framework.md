@@ -87,23 +87,23 @@ Some examples of data quality checks include:
 
 	1. Missing completely at random (MCAR)
 	This is when the missingness of data is non-systemtic and has no relationships with both the target and independent variables. Since there is no specific pattern or reason for the missing data, it is therefore considered less of a problem, as MCAR is then assumed not to introduce any bias to the analysis.
-	</n>
+	<\n>
 	MCAR data fields can be imputed using suitable techniques, depending on the variable. However, it is not that straight forward when determining whether a data field falls under the MCAR type, as this would require both statistical tests to see if the missingness of the variable is truly random, as well as a good understanding of the nature and relation, of the variable with missing data, to the rest of the other variables.
-	</br>
+	<br>
 
 	2. Missing at random (MAR)
 	This is when the missingness of data is not random, but can be explained by variables other than itself. MAR issues on a single variable (variable X) can be resolved by accounting for the other variable (variable Z) that's related to the missingness of the variable X.
-	</n>
+	<\n>
 	For example, if we know that in online job postings, the hiring company's name for jobs publicised by recruitment agencies are usually missing, then the missingness of the hiring company name can be considered MAR, if the type of job posting owner is observed and differentiated (Recruitment Agency vs Hiring Company). 
-	</br>
+	<br>
 
 	3. Not missing at random (NMAR)
 	This is when the missingness of the data is not random, and is only dependent on the unobserved data of the varible itself. This is a tricky situation, as NMAR cannot be resolved by including other observed independent variables. Hence, if a data set has multiple fields suffering from NMAR issues, it should be flagged out as an unsuitable/unqualified data set for ML model training and evaluation.
-	</n>
+	<\n>
 	For example, in a survey that asks pedestrians on how well they observe road safety when crossing, pedestrians who are used to jaywalking are less likely to report their preferences to jaywalk, so the missingness of jaywalking data would be considered NMAR.
-	</n>
+	<\n>
 	On data imputation techniques, it deserves a separate discussion on its own, but here are a list of techniques to consider. Let's assume you have already split the data set into the train, test, validation sets, we are interested in imputing the training data now.
-	</br>
+	<br>
 		- Impute using Mean / Median values
 			```python
 			from sklearn.impute import SimpleImputer
@@ -135,29 +135,29 @@ Some examples of data quality checks include:
 			imputed_training = mice(train.values)
 			```
 		- Impute using interpolation and extrapolation
-</br>
+<br>
 - **Data reasonableness by data type**
   For **numerical data fields**, a reasonableness check would entail setting an expected range for the values. For example, for monthly salary of job postings online, the range of value should be approximately between 600 to 30000, anything below the range will likely be a poorly parsed hourly-wage, anything above the range is likely a poorly parsed annual salary amount.
-  </n>
+  <\n>
   For text data fields, a reasonableness check would require more knowledge of the specific data fields. For example, while all data fields related to name of people should not contain digits, data fields for email address can contain digits. Quick **assertion tests** can be written in **python** to flag out data reasonableness issues mentioned above. 
-  </n>
+  <\n>
   Assertion tests such as asserting if a variable value contains alphanumerics only `.isalnum()` **Note:** " " (space) is not an alphanumeric, so if you have a variable like "Peter John", it will return "FALSE" for the assertion. For more string method assertion tests, consider reading up on `.isalpha()`,`.isascii()`,`.isdigit()`, `.isnumeric()`, and `.isspace()` as a start. **Note:** it's important to understand the difference between similar method, such as `.isdigit()` vs `.isnumeric()`. The use of `.isnumeric()` will only make a difference when the variable to be checked is a vular fraction like '⅓' (input via unicode `"U+2153"`).
-  </br>
+  <br>
 - **Data validity**
   Data validity is concerned with data type, format, and size both when it's in storage at databases, and after it's pumped through the ETL pipelines. Therefore, this is a shared responsibility between the Data Engineer and Data Scientist.
-  </n>
+  <\n>
   Data type can make or break a ML model, as data streams in via the ETL pipelines, an unexpected data type can raise a fatal error at the ML model feature engineering stage, or worse, stay hidden until the modelling stage and affect the model performance adversely.
-  </br>
+  <br>
 - **Data consistency**
   Data sets rarely exist on their own, without any reference to existing master data. Hence, it is important to check that for data fields involving categories, types, and indices, they do not contradict or violate existing master data or reference data sets.
-  </n>
+  <\n>
   One example of how data inconsistency can affect a ML model adversely, is with the HDB resale data set. For executive condominium, they are tagged as "EC" under property type. But once they pass 10 years of maturity, they now become "Private Property" and can be purchased by foreign buyers in Singapore. Let's assume 2 data sets containing records of executive condominiums, one generated when the EC is in its 10th year, another generated when the EC is in its 11th year. We will have inconsistent records in the property type column for the same exact property.
-  </br>
+  <br>
 - **Data integrity**
   Data integrity checks are necessary when multiple long tables are joined to form a wide table for analysis. During data set joins, many things can go wrong as a result of misunderstanding a business rule, or the definition of a data field, or the merge method applied.
-  </n>
+  <\n>
   A mistake in data set joining can easily be surfaced with a comparison of the number of null records, number of columns, number of rows, before and after the join. Common python methods include `dataframe.info()` for number of null values per variable, `dataframe.shape` for number of rows and columns of a data set, or `len(dataframe.index)` for number of rows. If you have a dataset with too many variables, you can also consider `dataframe.columns` for a print out of all the variable names.
-  </br>
+  <br>
 
 #### 2.2.2 Data Bias Testing
 **#TODO**
