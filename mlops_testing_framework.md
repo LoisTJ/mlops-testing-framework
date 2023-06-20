@@ -37,6 +37,7 @@
 		- [7.2 CI/CD Pipeline](#72-cicd-pipeline)
 		- [7.3 Define Testing Strategy](#73-define-testing-strategy)
 	- [Conclusion](#conclusion)
+	- [References](#references)
 
 ## 1. Introduction to MLOps Testing
 ### 1.1 What is MLOps Testing
@@ -194,3 +195,5 @@ Some examples of data quality checks include:
 
 ## Conclusion
 
+## References
+https://towardsdatascience.com/6-different-ways-to-compensate-for-missing-values-data-imputation-with-examples-6022d9ca0779
