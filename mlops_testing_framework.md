@@ -17,6 +17,7 @@
 			- [2.3.1 Model Accuracy Testing](#231-model-accuracy-testing)
 			- [2.3.2 Model Bias Testing](#232-model-bias-testing)
 			- [2.3.3 Model Robustness Testing](#233-model-robustness-testing)
+			- [2.3.4 Model Inference Endpoint Performance Testing](#234-model-inference-endpoint-performance-testing)
 	- [3. Stages of MLOps Testing](#3-stages-of-mlops-testing)
 		- [3.1 Model Development](#31-model-development)
 		- [3.2 Model Training](#32-model-training)
@@ -27,7 +28,7 @@
 	- [5. Roles and Responsibilities](#5-roles-and-responsibilities)
 		- [5.1 Data Scientist](#51-data-scientist)
 		- [5.2 Data Engineer](#52-data-engineer)
-		- [5.3 DevOps Engineer/ML Engineer](#53-devops-engineerml-engineer)
+		- [5.3 ML Engineer / Algorithm Engineer](#53-ml-engineer--algorithm-engineer)
 	- [6. Challenges](#6-challenges)
 		- [6.1 Data Quality](#61-data-quality)
 		- [6.2 Data Bias](#62-data-bias)
@@ -162,36 +163,163 @@ Some examples of data quality checks include:
   A mistake in data set joining can easily be surfaced with a comparison of the number of null records, number of columns, number of rows, before and after the join. Common python methods include `dataframe.info()` for number of null values per variable, `dataframe.shape` for number of rows and columns of a data set, or `len(dataframe.index)` for number of rows. If you have a dataset with too many variables, you can also consider `dataframe.columns` for a print out of all the variable names.
 
 #### 2.2.2 Data Bias Testing
-**#TODO**
+Data bias tests focus on identifying potential biases in the training data, which can lead to unethical or discriminatory inferences by the model. While many may see data bias tests as part of the overall model bias tests, it is important to separate these 2 concepts, as data bias and model bias are separate concepts, tested at different stages of the ML model management lifecycle. 
+
+This section will cover the different types of data bias that can be injected into a data model at the model training stage, as well as how to disambiguate genuine data findings from data biases.
+
+[Share about each of the 8 common types of data bias in detail.]
+
 #### 2.2.3 Data Drift Testing
+In real world scenarios, a large proportion of the data set collected for anlaysis do not get to retain their characteristics over time. This is intuitively true, since data distributions are dependent on other constantly changing factors. Shifts in human behaviour; changes in data collection process; new stimuli or policy that challenge the old ways, are all examples of how collected data sets can adopt a different distribution over time. When such changes in the data layer are left unchecked, it will impact the performance of the model that was trained on the original data set.
+
+Data drift tests help to monitor and identify changes in input data distribution over time. Before we dive into how to define data drift tests, let's first understand how changes in data distribution can impact the performance of data models.
+
+- **Data Model Selection**
+	When data scientists explore and learn about sample data sets, one of the key take-aways include understanding the distribution of the data. This is because the distribution of of the sample data can help inform which are the suitable models to use and compare in experiments. As different models have different <u>underlying statistical assumptions</u>, they can either be extremely suitable, or unsuitable, for different data sets. The moment the input data distribution changes, data scientists should be alerted to re-evaluate the feasibility of the existing model choice.
+
+- **Data Model Feature Selection**
+	During feature selection, the relationships between the input features and the target variable are assumed to follow the same pattern as described by the sample training data set. However, when data distributions changes, these key covariate assumptions may also be challenged, leading to concept drifts. As data distributions change, data scientists should be notified to check if existing set of features need to be updated in order to give the model its predictive powers.
+
+- **Unexpected Data Class Imbalance**
+	As data distributions change, more "outliers" may be introduced into the data set, as the range of "possible values" become bigger. These new data points are seen as "anomalies" to the old model trained using the original data set, which had very little information on these outlier data points. This creates a situation where the old model is used to make inferences for a class of data points, that were significantly under-represented in its original training data set.
+
+How to design quantitative tests to monitor and detect changes in input data distribution? Here are some commonly used metrics and their implementation methods in python: (list is not exhaustive)
+  1. Kolmogorov-Smirnov Test
+   The Kolmogorov-Smirnov test compares the cumulative distribution functions (CDFs) of two datasets to assess whether they come from the same distribution.
+   
+      ```python
+      from scipy.stats import ks_2samp
+
+      # Compare two data arrays (e.g., original data and new data)
+      statistic, p_value = ks_2samp(original_data, new_data)
+      print("KS statistic:", statistic)
+      print("p-value:", p_value) 
+      ```
+
+  2. Wasserstein Distance
+   The Wasserstein distance, also known as the Earth Mover's Distance (EMD), measures the minimum cost of transforming one distribution into another. It quantifies the difference between two probability distributions.
+
+      ```python
+	  from scipy.stats import wasserstein_distance
+
+	  # Calculate Wasserstein distance between two data arrays
+	  distance = wasserstein_distance(original_data, new_data)
+      print("Wasserstein distance:", distance)
+	  ```
+
+  3. Kullback-Leibler Divergence
+   The Kullback-Leibler (KL) divergence measures the difference between two probability distributions. It quantifies the information lost when one distribution is used to approximate another.
+
+      ```python
+	  import numpy as np
+	  from scipy.special import kl_div
+	  
+	  # Calculate KL divergence between two data arrays
+	  kl_divergence = np.sum(kl_div(original_data, new_data))
+	  print("KL divergence:", kl_divergence)
+	  ```
+
+  4. Energy Distance
+   The Energy distance measures the discrepancy between two datasets in terms of their empirical characteristic functions. It quantifies the difference in the overall shape and spread of the distributions.
+
+      ```python
+	  import numpy as np
+	  from sklearn.metrics import energy_distance
+	  
+	  # Calculate Energy distance between two data arrays
+	  distance = energy_distance(original_data, new_data)
+	  print("Energy distance:", distance)
+	  ```
+
+  5. Chi-square Test
+   The Chi-Square test compares the observed frequencies of categories in two datasets to assess whether they are significantly different from each other.
+
+      ```python
+	  from scipy.stats import chi2_contingency
+	  
+	  # Perform Chi-Square test between two contingency tables
+	  chi2, p_value, _, _ = chi2_contingency(contingency_table1, contingency_table2)
+	  print("Chi-Square statistic:", chi2)
+	  print("p-value:", p_value)
+	  ```
+
+  6. Maximum Mean Discrepency (MMD)
+   MMD measures the discrepancy between two distributions by comparing their empirical means in a high-dimensional feature space. It is commonly used for comparing distributions in kernel-based methods.
+
+      ```python
+	  import numpy as np
+	  from sklearn.metrics import pairwise_kernels
+	  
+	  # Calculate Maximum Mean Discrepancy between two data arrays
+	  mmd = np.mean(pairwise_kernels(original_data, new_data))
+	  print("Maximum Mean Discrepancy:", mmd)
+	  ```
+
+  7. Cramér's V
+   Cramér's V is a measure of association between categorical variables. It determines the strength and direction of the relationship between variables and can be useful for assessing changes in categorical data distributions.
+
+      ```python
+	  import numpy as np
+	  from scipy.stats import cramers_v
+	  
+	  # Calculate Cramér's V between two categorical variables
+	  v = cramers_v(categorical_var1, categorical_var2)
+	  print("Cramér's V:", v)
+	  ```
+There are also many other scipy, sklearn python modules not mentioned here, you can explore more of those to compare the distribution of 2 data sets.
+
 ### 2.3 Model Testing
+
 #### 2.3.1 Model Accuracy Testing
+[Model accuracy testing measures the performance of the ML model in terms of its predictive accuracy and ability to meet desired performance thresholds.]
 #### 2.3.2 Model Bias Testing
+[Model bias testing focuses on detecting and mitigating biases that arise from the ML model's predictions, ensuring fairness and ethical considerations.]
 #### 2.3.3 Model Robustness Testing
+[Model robustness testing assesses the ML model's resilience to noisy inputs, out-of-distribution samples, and ability to generalise.]
+#### 2.3.4 Model Inference Endpoint Performance Testing
+[Model API endpoint performance testing assesses the latency and availability of the model's endpoint, in serving real-time / batch queries.]
 
 ## 3. Stages of MLOps Testing
+
 ### 3.1 Model Development
+[Types of testing that should occur during the ML model development stage.]
 ### 3.2 Model Training
+[Types of testing and metrics to use during the model training stage.]
 ### 3.3 Model Deployment
+[Types of tests to run prior to model deployment.]
 ### 3.4 Production Environment
+[After ML model is in production, what metrics to monitor for triggering of model retraining.]
 
 ## 4. Tools and Techniques
 ### 4.1 Frameworks
+[Examples of common commercial / open-source testing frameworks, tools, packages to use.]
 
 ## 5. Roles and Responsibilities
+
 ### 5.1 Data Scientist
+[Which are the tests and metrics that data scientists should focus on and which stages are these tests found in.]
 ### 5.2 Data Engineer
-### 5.3 DevOps Engineer/ML Engineer
+[Which are the tests and metrics that data engineers should help build and monitor.]
+### 5.3 ML Engineer / Algorithm Engineer
+[What is the role of a ML or Algorithm Engineer and how does this role differ from a data scientists or engineer.]
 
 ## 6. Challenges
+
 ### 6.1 Data Quality
+[Share 1-2 use cases, on how poor data quality can be a key obstacle in developing quality ML model with MLOps workflow.]
 ### 6.2 Data Bias
+[Share 1-2 use cases, on how data biases can silently creep into ML models and cause the inferences to be undesirable.]
 ### 6.3 Model Drift
+[Share 1-2 use cases, on how model drift, when left unmonitored, can cause big problems.]
 
 ## 7. Best Practices
+
 ### 7.1 Test-driven Development
+[What is test-driven development and how does this concept bring about a new mindset as data professionals work on ML models and pipelines.]
 ### 7.2 CI/CD Pipeline
+[What are CI and CD pipelines, how are test cases integrated in each of these pipelines.]
 ### 7.3 Define Testing Strategy
+[As an organisation, how does having a testing strategy help with its ML model management.]
 
 ## Conclusion
 
