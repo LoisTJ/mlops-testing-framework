@@ -117,7 +117,7 @@ Some examples of data quality checks include:
 		```python
 		from sklearn.impute import SimpleImputer
 
-		impute_mode = SimpleImputer(strategy='most_frequent)
+		impute_mode = SimpleImputer(strategy='most_frequent')
 		impute_mode.fit(train)
 		imputed_train_df = imputed_mode.transform(train)
 		```
